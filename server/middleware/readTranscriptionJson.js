@@ -1,0 +1,29 @@
+
+
+export default async function readTranscriptionJson(req, res, next) {
+    const audioPath = req.wavPath;
+    console.log('audioPath', audioPath);
+
+    // Read the transcription JSON file
+    const transcriptionFilePath = path.join(__dirname
+        , '../uploads', 'transcription.json');
+    fs.readFile(transcriptionFilePath, 'utf8', (err, data) => {
+
+        if (err) {
+            console.error('Error reading transcription file:', err);
+            return res.status(500).json({ error: 'Failed to read transcription file' });
+        }
+
+        try {
+            const transcription = JSON.parse(data);
+            console.log('Transcription:', transcription);
+            // Add the transcription to the request object
+            req.transcription = transcription;
+            next();
+        } catch (parseError) {
+            console.error('Error parsing transcription JSON:', parseError);
+            return res.status(500).json({ error: 'Failed to parse transcription JSON' });
+        }
+    }
+    );
+}

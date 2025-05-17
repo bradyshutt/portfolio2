@@ -1,0 +1,17 @@
+
+.messageBlock {
+    border: 1px solid black;
+    padding: 12px;
+    margin: 5px 5px 20px 5px;
+    border-radius: 10px;
+}
+
+.assistantMessage {
+    background-color: #e0f7fa;
+    color: #006064;
+}
+
+.userMessage {
+    background-color: #ffe0b2;
+    color: #e65100;
+}

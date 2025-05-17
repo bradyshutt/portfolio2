@@ -1,0 +1,33 @@
+
+.drawer {
+    /* background-color: red; */
+}
+
+.drawerHeader {
+    display: flex;;
+    justify-content: center;
+    align-items: center;
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+
+.navLink {
+
+    display: flex;
+    margin: 2px 0;
+    padding: 12px;
+    align-items: center;
+    border-radius: 5px;
+
+
+    .navIconContainer {
+        margin: 0 8px;
+    }
+
+
+    &.isActive {
+        background-color: rgb(242, 242, 242);
+    }
+
+}

@@ -1,0 +1,33 @@
+
+.title {
+    font-size: 4rem;
+    font-weight: bold;
+    margin: auto;
+    display: flex;
+    justify-content: center;
+    margin-top: 20vh;
+    color: #333;
+}
+
+.angledDivContainer {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+
+    .angledDiv {
+        background-color: rgb(255, 113, 137);
+        display: block;
+        position: absolute;
+        z-index: -10;
+
+        /* width: 100vw; */
+        top: 20vh;
+        left: -200vw;
+        right: -200vw;
+        bottom: -200vw;
+        transform: rotate(-15deg);
+        overflow: hidden;
+    }
+
+}
