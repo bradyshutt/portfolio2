@@ -1,23 +1,7 @@
-
-// import {
-//     Sidebar,
-//     SidebarContent,
-//     SidebarFooter,
-//     SidebarGroup,
-//     SidebarGroupContent,
-//     SidebarGroupLabel,
-//     SidebarHeader,
-//     SidebarMenu,
-//     SidebarMenuButton,
-//     SidebarMenuItem,
-// } from '@/components/ui/sidebar';
-
-import { useDisclosure } from '@mantine/hooks';
 import { AiOutlineSmile, AiTwotoneHome } from 'react-icons/ai';
 import styles from './AppDrawer.module.scss';
-import { NavLink, useNavigate, useLocation } from 'react-router';
+import { useNavigate, useLocation } from 'react-router';
 import { useLayout } from '../LayoutContext';
-
 
 export function AppDrawer() {
 

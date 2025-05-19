@@ -1,33 +1,15 @@
 import Layout from '@/components/Layout';
 import styles from './ChatPage.module.scss';
 import Message from '../Message/Message';
-import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
+import { useEffect, useState } from 'react';
 import { Button, Textarea } from '@mantine/core';
 import recordingService from '@/services/RecordingService';
 import { chatAudio, chatText } from '@/api/api';
 
 export default function ChatPage() {
-
-    const [socket, setSocket] = useState<WebSocket | null>(null);
     const [isRecording, setIsRecording] = useState(false);
-    const [loading, setLoading] = useState(false);
-    const [liveText, setLiveText] = useState('');
-    const audioChunksRef = useRef<Array<Blob>>([]);
-    const [messages, setMessages] = useState<Array<any>>([]);
+    const [messages, setMessages] = useState<Array<object>>([]);
     const [textInputValue, setTextInputValue] = useState('');
-
-    // const messages = [
-    //     {
-    //         role: 'assistant',
-    //         content: 'Hello, how can I help you today?',
-    //         timestamp: (new Date(Date.now() - 1000 * 30)).toISOString(),
-    //     },
-    //     {
-    //         role: 'user',
-    //         content: 'Hello, how are you?',
-    //         timestamp: new Date().toISOString(),
-    //     }
-    // ];
 
     // Init
     useEffect(() => {
@@ -75,7 +57,6 @@ export default function ChatPage() {
 
 
     const handleUploadAudio = async (audioChunks: Array<Blob>) => {
-        setLoading(true);
 
         chatAudio(audioChunks)
         
@@ -100,12 +81,10 @@ export default function ChatPage() {
                     timestamp: new Date().toISOString(),
                 },
             ]);
-            setLoading(false);
         });
     };
 
     const handleUploadText = async (text: string) => {
-        setLoading(true);
 
         chatText(text)
         .then(async (response) => {   
@@ -130,7 +109,6 @@ export default function ChatPage() {
                 },
             ]);
             setTextInputValue('');
-            setLoading(false);
         });
     };
 

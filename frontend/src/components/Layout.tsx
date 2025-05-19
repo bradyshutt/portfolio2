@@ -1,7 +1,4 @@
-
-import { useDisclosure } from '@mantine/hooks';
 import Navbar from './Navbar';
-import { createContext, useContext } from 'react';
 import { Drawer } from '@mantine/core';
 import { useLayout } from './LayoutContext';
 import { AppDrawer } from './AppDrawer/AppDrawer';

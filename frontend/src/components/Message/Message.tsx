@@ -9,7 +9,6 @@ export type MessageProps = {
 export default function Message({
     role,
     content,
-    timestamp,
 }: MessageProps) {
 
     return (
