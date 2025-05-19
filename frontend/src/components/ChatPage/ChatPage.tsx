@@ -58,7 +58,7 @@ export default function ChatPage() {
 
     const handleUploadAudio = async (audioChunks: Array<Blob>) => {
 
-        chatAudio(audioChunks)
+        chatAudio(audioChunks, messages)
         
         .then(async (response) => {
             console.log('response', response);
