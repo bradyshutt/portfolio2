@@ -4,18 +4,13 @@ import { nodewhisper } from 'nodejs-whisper';
 import fs from 'fs';
 import path from 'path';
 import dotenv from 'dotenv';
-
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
-
 dotenv.config();
-console.log('process.env', process.env.OPENAI_API_KEY);
 
 const openAi = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-
 
 export async function transcribeAudioWhisperNode(filePath) {
     // TODO: Error if missing bin
@@ -38,7 +33,7 @@ export async function transcribeAudioWhisperNode(filePath) {
 }
 
 
-export async function transcribeAudio(filePath) {
+export async function transcribeAudioOpenAi(filePath) {
     const audioStream = fs.createReadStream(filePath);
     console.log('fetching transcription for filePath', filePath);
 
@@ -49,3 +44,8 @@ export async function transcribeAudio(filePath) {
 
     return transcription.text;
 };
+
+export async function transcribeAudio(filePath) {
+    // return transcribeAudioWhisperNode(filePath);
+    return await transcribeAudioOpenAi(filePath);
+}

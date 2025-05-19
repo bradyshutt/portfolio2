@@ -11,7 +11,7 @@ export async function textToSpeech(text) {
         // voice: 'shimmer', // Other options: alloy, echo, fable, onyx
         voice: 'sage', // Other options: alloy, echo, fable, onyx
         input: text,
-        speed: 1.3,
+        speed: 1.2,
         instructions: 'Make it sound like a human',
     });
     return Buffer.from(await mp3.arrayBuffer());

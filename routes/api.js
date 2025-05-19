@@ -6,7 +6,7 @@ import Multer from 'multer';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { textToSpeech } from '../server/textToSpeech.js';
-import { transcribeAudio, transcribeAudioWhisperNode } from '../server/speechToText.js';
+import { transcribeAudio } from '../server/speechToText.js';
 import dotenv from 'dotenv';
 import convertWebmToWav from '../server/middleware/convertWebmToWav.js';
 import whisperTranscribeAudio from '../server/middleware/whisperTranscribeAudio.js';
@@ -26,31 +26,25 @@ const storage = Multer.diskStorage({
         cb(null, uploadDestination);
     },
     filename: function (req, file, cb) {
-        cb(null, file.originalname);
+        const filename = `user-audio-${Date.now()}.wav`;
+        cb(null, filename);
     },
 });
 
 // Disk storage
-// const upload = Multer({
-//     dest: './uploads',
-//     storage: storage
-// });
-
-// In-Memory storage
 const upload = Multer({
-    storage: Multer.memoryStorage()
+    dest: './uploads',
+    storage: storage
 });
 
+// In-Memory storage
+// const upload = Multer({
+//     storage: Multer.memoryStorage()
+// });
 
-router.post('/chat',
-    upload.single('audio'),
-    convertWebmToWav,
-    whisperTranscribeAudio,
+router.post('/text',
     async (req, res) => {
-
-        console.log('req.transcription', req.transcription);
-        const userMessage = req.transcription.transcription[0].text;
-        console.log('userMessage', userMessage);
+        const userMessage = req.body.text;
 
         try {
             // const audioPath = req.wavPath;
@@ -59,6 +53,49 @@ router.post('/chat',
             // // 1. Transcribe
             // const text = await transcribeAudioWhisperNode(audioPath);
             // console.log('Transcribed Audio: ', text);
+
+            // 2. Generate reply
+            const chatResponse = await openAi.chat.completions.create({
+                model: 'gpt-4',
+                messages: [{ role: 'user', content: userMessage }]
+            });
+
+            const reply = chatResponse.choices[0].message.content;
+
+            console.log('ChatGPT Reply: ', reply);
+
+            // 3. Convert reply to speech
+            const audioBuffer = await textToSpeech(reply);
+
+            // Clean up audio file
+            // fs.unlink(audioPath, () => { });
+
+            // Send transcription + audio reply
+            res.json({ userMessage, reply, audio: audioBuffer.toString('base64') });
+        } catch (error) {
+            console.log('ERROR', error);
+            res.status(500).send('Server Error');
+        }
+    }
+);
+
+router.post('/chat-audio',
+    upload.single('audio'),
+    // For Whisper-node
+    // convertWebmToWav,
+    // whisperTranscribeAudio,
+    async (req, res) => {
+
+        // console.log('req.transcription', req.transcription);
+        // const userMessage = req.transcription.transcription[0].text;
+        // console.log('userMessage', userMessage);
+        try {
+
+            console.log('req.file', req.file);
+
+            // 1. Transcribe
+            const userMessage = await transcribeAudio(req.file.path);
+            console.log('Transcribed Audio: ', userMessage);
 
             // 2. Generate reply
             const chatResponse = await openAi.chat.completions.create({

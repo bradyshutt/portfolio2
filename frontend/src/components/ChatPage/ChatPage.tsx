@@ -1,19 +1,20 @@
 import Layout from '@/components/Layout';
-import styles from './ChatPage.module.css';
+import styles from './ChatPage.module.scss';
 import Message from '../Message/Message';
-import { useRef, useState } from 'react';
-import { Button } from '@mantine/core';
-
+import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
+import { Button, Textarea } from '@mantine/core';
+import recordingService from '@/services/RecordingService';
+import { chatAudio, chatText } from '@/api/api';
 
 export default function ChatPage() {
 
     const [socket, setSocket] = useState<WebSocket | null>(null);
-    const [recording, setRecording] = useState(false);
+    const [isRecording, setIsRecording] = useState(false);
     const [loading, setLoading] = useState(false);
     const [liveText, setLiveText] = useState('');
-    const mediaRecorderRef = useRef<null | MediaRecorder>(null);
     const audioChunksRef = useRef<Array<Blob>>([]);
     const [messages, setMessages] = useState<Array<any>>([]);
+    const [textInputValue, setTextInputValue] = useState('');
 
     // const messages = [
     //     {
@@ -28,71 +29,64 @@ export default function ChatPage() {
     //     }
     // ];
 
+    // Init
+    useEffect(() => {
+        recordingService.init()
+        // Hook up Observable isRecording state
+        const sub = recordingService.isRecording$.subscribe(setIsRecording);
+        return () => sub.unsubscribe();
+    }, []);
+
     const startRecording = async () => {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        mediaRecorderRef.current = new MediaRecorder(stream);
-
-        audioChunksRef.current = [];
-
-        mediaRecorderRef.current.ondataavailable = (event) => {
-            if (event.data.size > 0) {
-                audioChunksRef.current.push(event.data);
-                // socket.send(event.data);
-            }
-        };
-
-        mediaRecorderRef.current.onstop = handleUpload;
-
-        mediaRecorderRef.current.start();
-        // mediaRecorderRef.current.start(250); // Send data every 250ms
-        setRecording(true);
+        recordingService.startRecording()
+            .then((buffer) => {
+                console.log('Recording finished');
+                handleUploadAudio(buffer)
+            });
     };
 
-    const stopRecording = () => {
-        console.log('STOP RECORDING');
-        mediaRecorderRef.current.stop();
-        setRecording(false);
+    const stopRecording = async () => {
+        recordingService.stopRecording();
+        setIsRecording(false);
     };
 
-    const handleUpload = async () => {
+    const decodeAndPlayResponseAudio = (base64Audio: string) => {
+
+        // Decode the Base64 string into a binary Blob
+        // Decode Base64 to binary
+        const binaryAudio = atob(base64Audio);
+
+        const audioArray = new Uint8Array(binaryAudio.length);
+        for (let i = 0; i < binaryAudio.length; i++) {
+            audioArray[i] = binaryAudio.charCodeAt(i);
+        }
+
+        const blob = new Blob([audioArray], { type: 'audio/mpeg' });
+        console.log('blob', blob);
+
+        const url = URL.createObjectURL(blob);
+        console.log('url', url);
+        const audio = new Audio(url);
+        console.log('audio', audio);
+
+        audio.play();
+
+    };
+
+
+    const handleUploadAudio = async (audioChunks: Array<Blob>) => {
         setLoading(true);
 
-        console.log('audioChunksRef.current', audioChunksRef.current);
-        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
-        const formData = new FormData();
-        formData.append('audio', audioBlob, 'recording.webm');
-
-        try {
-            const res = await fetch('/api/chat', {
-                method: 'POST',
-                body: formData
-            });
-
-            console.log('res', res);
-            console.log('Content-Type:', res.headers.get('Content-Type'));
-            const responseJson = await res.json();
-
+        chatAudio(audioChunks)
+        
+        .then(async (response) => {
+            console.log('response', response);
+            const responseJson = await response.json();
             console.log('responseJson', responseJson);
 
             // Extract the Base64 encoded audio
-            const base64Audio = responseJson.audio;
+            decodeAndPlayResponseAudio(responseJson.audio);
 
-            // Decode the Base64 string into a binary Blob
-            // Decode Base64 to binary
-            const binaryAudio = atob(base64Audio);
-
-            const audioArray = new Uint8Array(binaryAudio.length);
-            for (let i = 0; i < binaryAudio.length; i++) {
-                audioArray[i] = binaryAudio.charCodeAt(i);
-            }
-
-            const blob = new Blob([audioArray], { type: 'audio/mpeg' });
-            console.log('blob', blob);
-
-            const url = URL.createObjectURL(blob);
-            console.log('url', url);
-            const audio = new Audio(url);
-            console.log('audio', audio);
             setMessages([
                 ...messages,
                 {
@@ -106,19 +100,43 @@ export default function ChatPage() {
                     timestamp: new Date().toISOString(),
                 },
             ]);
-            audio.play();
-        } catch (e) {
-            console.error('Error:', e);
-        }
-
-        setLoading(false);
+            setLoading(false);
+        });
     };
 
+    const handleUploadText = async (text: string) => {
+        setLoading(true);
 
+        chatText(text)
+        .then(async (response) => {   
+            console.log('response', response);
+            const responseJson = await response.json();
+            console.log('responseJson', responseJson);
+
+            // Extract the Base64 encoded audio
+            decodeAndPlayResponseAudio(responseJson.audio);
+
+            setMessages([
+                ...messages,
+                {
+                    role: 'user',
+                    content: text,
+                    timestamp: new Date().toISOString(),
+                },
+                {
+                    role: 'assistant',
+                    content: responseJson.reply,
+                    timestamp: new Date().toISOString(),
+                },
+            ]);
+            setTextInputValue('');
+            setLoading(false);
+        });
+    };
 
     return (
         <Layout>
-            <div className={styles.chatPage }>
+            <div className={styles.chatPage}>
                 <div className={styles.chatMessages}>
                     {messages.map((message, index) => (
                         <Message
@@ -129,23 +147,37 @@ export default function ChatPage() {
                         />
                     ))}
                 </div>
-            </div>
 
 
-            <div className={styles.bottomBar}>
-                <Button onClick={recording ? stopRecording : startRecording}>
-                    {recording ? 'Stop Recording' : 'Start Talking'}
-                </Button>
-            </div>
+                <div className={styles.bottomBar}>
+                    <div className={styles.textInputWrapper}>
+                        <Textarea
+                            value={textInputValue}
+                            placeholder="Type your message..."
+                            className={styles.inputField}
+                            onChange={(e) => setTextInputValue(e.currentTarget.value)}
+                        />
+                        <div className={styles.sendButtonContainer}>
+                            <Button 
+                                onClick={() => handleUploadText(textInputValue)}
+                                className={styles.sendButton}
+                            >
+                                    Send
+                            </Button>
+                        </div>
+                    </div>
 
-            {recording && (
-                <div style={{ marginTop: '1rem' }}>
-                    <p><strong>transcribing:</strong> {liveText}</p>
+                    <div className={styles.buttons}>
+                        <Button
+                            onClick={isRecording ? stopRecording : startRecording}
+                            color="red"
+                            className={styles.recordButton}
+                        >
+                            {isRecording ? 'Stop Recording' : 'Start Talking'}
+                        </Button>
+                    </div>
                 </div>
-            )}
-
-            {loading && <p>💬 Processing...</p>}
-
+            </div>
         </Layout>
     );
 }

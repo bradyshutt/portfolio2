@@ -2,5 +2,8 @@
 .navbar {
     display: flex;
     justify-content: space-between;
-    padding: 10px;
+    padding: 14px;
+    z-index: 10;
+    background-color: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }

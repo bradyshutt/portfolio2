@@ -1,0 +1,31 @@
+
+
+
+export function chatAudio(audioChunks: Blob[]) {
+    const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+    const formData = new FormData();
+    formData.append('audio', audioBlob, 'recording.webm');
+
+    return fetch('/api/chat-audio', {
+        method: 'POST',
+        body: formData
+    });
+}
+
+
+
+export function chatText(text: string) {
+    // const formData = new FormData();
+    // formData.append('text', text);
+
+
+    return fetch('/api/text', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            text: text,
+        }),
+    });
+}
