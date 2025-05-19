@@ -19,7 +19,7 @@ import { MantineProvider } from '@mantine/core';
 import LandingPage from './components/LandingPage/LandingPage';
 import { LayoutProvider } from './components/LayoutContext';
 
-ReactDOM.createRoot(document.getElementById('root')).render(
+ReactDOM.createRoot(document.getElementById('root')!).render(
     <React.StrictMode>
         <MantineProvider>
             <LayoutProvider>

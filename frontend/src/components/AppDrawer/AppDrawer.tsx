@@ -24,7 +24,8 @@ export function AppDrawer() {
         },
     ]
 
-    function onClickRoute(item) {
+    // TODO: Type
+    function onClickRoute(item: any) {
         console.log('item', item);
         closeSidebar();
         setTimeout(() => {

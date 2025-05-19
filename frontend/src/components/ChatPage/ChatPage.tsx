@@ -8,7 +8,7 @@ import { chatAudio, chatText } from '@/api/api';
 
 export default function ChatPage() {
     const [isRecording, setIsRecording] = useState(false);
-    const [messages, setMessages] = useState<Array<object>>([]);
+    const [messages, setMessages] = useState<Array<any>>([]);
     const [textInputValue, setTextInputValue] = useState('');
 
     // Init
