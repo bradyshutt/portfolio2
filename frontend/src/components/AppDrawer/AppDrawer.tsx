@@ -1,4 +1,4 @@
-import { AiOutlineSmile, AiTwotoneHome } from 'react-icons/ai';
+import { AiOutlineFieldNumber, AiOutlineSmile, AiTwotoneHome } from 'react-icons/ai';
 import styles from './AppDrawer.module.scss';
 import { useNavigate, useLocation } from 'react-router';
 import { useLayout } from '../LayoutContext';
@@ -21,6 +21,11 @@ export function AppDrawer() {
             title: "ConvoBot",
             url: "/convo-bot",
             icon: AiOutlineSmile,
+        },
+        {
+            title: "Handwritten Number Recognizer",
+            url: "/number-recognizer",
+            icon: AiOutlineFieldNumber,
         },
     ]
 

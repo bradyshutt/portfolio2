@@ -19,15 +19,20 @@
     padding: 12px;
     align-items: center;
     border-radius: 5px;
-
+    cursor: pointer;
 
     .navIconContainer {
         margin: 0 8px;
     }
 
 
+    &:hover {
+        background-color: rgb(250, 250, 250);
+    }
+
     &.isActive {
         background-color: rgb(242, 242, 242);
     }
+
 
 }

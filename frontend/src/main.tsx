@@ -18,6 +18,7 @@ import '@mantine/core/styles.css';
 import { MantineProvider } from '@mantine/core';
 import LandingPage from './components/LandingPage/LandingPage';
 import { LayoutProvider } from './components/LayoutContext';
+import { NumberRecognizer } from './pages/NumberRecognizer';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
     <React.StrictMode>
@@ -27,6 +28,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
                     <Routes>
                         <Route path="/" element={<LandingPage />} />
                         <Route path="/convo-bot" element={<ChatPage />} />
+                        <Route path="/number-recognizer" element={<NumberRecognizer />} />
                     </Routes>
                 </BrowserRouter>
             </LayoutProvider>

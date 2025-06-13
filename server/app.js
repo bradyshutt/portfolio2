@@ -8,6 +8,7 @@ import { fileURLToPath } from 'url';
 import indexRouter from '../routes/index.js';
 import usersRouter from '../routes/users.js';
 import apiRouter from '../routes/api.js';
+import numberRecognizerRouter from '../routes/number-recognizer.js';
 
 const app = express();
 
@@ -28,6 +29,7 @@ app.use(express.static(path.join(__dirname, '../frontend/dist')));
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/api', apiRouter);
+app.use('/number-recognizer', numberRecognizerRouter);
 
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
